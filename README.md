@@ -12,13 +12,13 @@
 
 :eyes: https://www.proxmox.com/en/
 
-Télécharge l'iso de la version **7.4-1**
+Download the ISO for version **7.4-1**:
 
 ```shell
 wget https://enterprise.proxmox.com/iso/proxmox-ve_7.4-1.iso
 ```
 
-Vérifier l'intégrité de notre téléchargement
+Verify the integrity of the download:
 
 ```shell
 echo "55b672c4b0d2bdcbff9910eea43df3b269aaab3f23e7a1df18b82d92eb995916 proxmox-ve_7.4-1.iso" | sha256sum -c
@@ -26,43 +26,43 @@ echo "55b672c4b0d2bdcbff9910eea43df3b269aaab3f23e7a1df18b82d92eb995916 proxmox-v
 
 
 
-### Comment créer une clef usb boutable
+### How to Create a Bootable USB Drive
 
-> on peut aussi utiliser [ventoy](https://www.ventoy.net/en/index.html) pour créer un clef usb avec plusieurs iso bootable
+> You can also use [Ventoy](https://www.ventoy.net/en/index.html) to create a bootable USB drive with multiple ISO images.
 
-Afficher la liste des supports et disques connectés avec leurs détails.
+List the connected storage devices and drives with details:
 
 ```shell
 df
 ```
 
-afficher la liste des périphériques connectés pour retrouver les infos de ma clef usb
+To find information about your USB drive, list the connected devices:
 
-> 'affichage des partitions du système
+> This command displays the system's partitions:
 
 ```shell
 sudo fdisk -l
 ```
 
-ou plus simplement la commande lsblk
+Or simply use the `lsblk` command:
 
 ```shell
 lsblk
 ```
 
-formatage du périphérique usb, dans mon cas l'usb est monté dans `/dev/sdb1`
+Format the USB drive (in this case, the USB is mounted at `/dev/sdb1`):
 
 ```shell
 sudo mkfs.vfat -n 'UTILS' -I /dev/sdb1
 ```
 
-> (i) pour info: umount notre clef
+> (i) Note: If necessary, unmount the USB drive:
 >
 > ```shell
 > sudo umount /dev/sdb1
 > ```
 
-création de la clef usb bootable avec **dd**
+Create the bootable USB drive using **dd**:
 
 ```shell
 sudo dd if=./proxmox-ve_7.4-1.iso of=/dev/sdb status=progress
@@ -70,41 +70,39 @@ sudo dd if=./proxmox-ve_7.4-1.iso of=/dev/sdb status=progress
 
 
 
->  pour accéder au bios pour mon pc au démarrage il faut cliquer sur la touche **Echap**
+>  To access the BIOS on my PC during startup, press the **Escape** key.
 >
-> vérifier dans l'onglet **Advanced** que l'option **Intel VT**
+> In the **Advanced** tab, ensure the **Intel VT** option is enabled.
 >
-> après avoir fait ces modifications "**saved and exit**"
+> After making these changes, select "**Save and Exit**."
 >
-> puis au redémarrage cliquer sur **F12** puis entrer
+> Upon reboot, press **F12** and then hit Enter.
 >
-> choisir "**Install Promox VVE (Graphical)**"
+> Select "**Install Proxmox VVE (Graphical)**."
 
 
 
-### Configuration ssh sur mon poste de travail linux
+### SSH Configuration on My Linux Workstation
 
-connexion en ssh au serveur proxmox
-
-créer une paire de clef
+Connect to the Proxmox server via SSH and create an SSH key pair:
 
 ```shell
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/proxmox -C "root@192.168.1.64"
 ```
 
-> :information_source: *avec une passphrase si necessaire*
+> :information_source: *Include a passphrase if necessary.*
 >
 > ```shell
 > ls -al ~/.ssh
 > ```
 
-copier la clef publique sur le serveur proxmox
+Copy the public key to the Proxmox server:
 
 ```shell
 ssh-copy-id -i ~/.ssh/proxmox.pub root@192.168.1.64
 ```
 
-activer l'agent ssh (optional)
+(Optional) Activate the SSH agent:
 
 ```shell
 eval $(ssh-agent)
@@ -114,11 +112,11 @@ ssh root@192.168.1.64
 
 
 
-## Iac
+## Infrastructure as Code (IaC)
 
-### Etape 1: configurer proxmox
+### Step 1: Configure Proxmox
 
-#### Comment préparer proxmox à être managé par ansible
+#### Preparing Proxmox to be Managed by Ansible
 
 ```shell
 ssh root@192.168.1.64
@@ -128,31 +126,29 @@ ssh root@192.168.1.64
 apt install sudo
 ```
 
-*(i) depuis le poste de travail avec ansible d'installé*
+(i) From the workstation with Ansible installed:
 
 ```shell
 cd Proxmox/iac/etape1
 ansible-playbook -u root prepare_vm.yml --tags "bootstrap-vm"
 ```
 
-#### Creation d'un template de vm
+#### Creating a VM Template
 
 ```shell
 cd Proxmox/iac/etape1
 ansible-playbook -u ansible prepare_vm.yml --tags "create_vm_template"
 ```
 
-### Etape 2: provisionner des vms pour le cluster k8s
+### Step 2: Provision VMs for the K8s Cluster
 
-se connecter au serveur proxmox
-
-
+Connect to the Proxmox server:
 
 ```shell
 ssh root@192.168.1.64
 ```
 
-créer un Role **TerraformProv**
+Create a Terraform provisioning role:
 
 ```shell
 pveum role add TerraformProv -privs "Datastore.AllocateSpace Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt"
@@ -160,7 +156,7 @@ pveum user add terraform-prov@pve --password secure1234
 pveum aclmod / -user terraform-prov@pve -role TerraformProv
 ```
 
-créer un token
+Create a token:
 
 ```shell
 pveum user token add terraform-prov@pve terraform -expire 0 -privsep 0 -comment "Terraform token"
@@ -168,9 +164,9 @@ pveum user token add terraform-prov@pve terraform -expire 0 -privsep 0 -comment 
 
 
 
-:warning:  Avant de continuer il faut ajouter le fichier **`terraform.tfvars`** dans le dossier **Proxmox/iac/etape2**
+:warning: Before proceeding, add the **`terraform.tfvars`** file to the **Proxmox/iac/etape2** directory.
 
-(i) remplacer 192.168.1.64 par votre ip local
+(i) Replace `192.168.1.64` with your local IP address:
 
 ```
 proxmox_api_url = "https://192.168.1.64:8006/api2/json"
@@ -179,7 +175,7 @@ ssh_key = "votre clef public"
 
 
 
-Provisionner des vms pour la mise en place d'un cluster k8s avec kubeadm
+Provision VMs for setting up a Kubernetes cluster with Kubeadm:
 
 ```shell
 cd Proxmox/iac/etape2
@@ -190,7 +186,7 @@ terraform plan
 terraform apply
 ```
 
-### Etape 3 : installer cluster k8s (kubeadm)
+### Step 3: Install the K8s Cluster (Kubeadm)
 
 ```shell
 cd Kubernetes/iac
@@ -216,29 +212,29 @@ ansible-playbook -u ubuntu setup-k8s.yml
 
 
 
-[K9S](https://k9scli.io/) c'est un outil écrit en GO, qui permet de gérer un cluster Kubernetes avec tout plein de raccourcis et de couleurs :smiley:. 
+[K9S](https://k9scli.io/) is a tool written in GO that allows you to manage a Kubernetes cluster with lots of shortcuts and colors. :smiley:
 
-### Comment l'installer ?
+### How to Install It?
 
-> sous linux installer [homebrew](https://docs.brew.sh/Installation)
+> On Linux, install [Homebrew](https://docs.brew.sh/Installation):
 
 ```shell
 brew install derailed/k9s/k9s
 ```
 
-### Comment configurer k9s pour se connecter au cluster k8s ?
+### How to Configure k9s to Connect to the K8s Cluster?
 
-Pour interagir avec mon cluster k8s, k9s doit lire les informations du fichier `~/.kube/config`, ce fichier et ce dossier n'existe pas encore sur mon poste de travail.
+To interact with your K8s cluster, k9s needs to read the `~/.kube/config` file. This file and directory do not yet exist on your workstation.
 
-Tout d'abord je me connecte à ma vm `k8s-0` et je récupère le contenu du fichier `.kube/config` (context admin qu'on pourra changer par la suite...), puis 
+First, connect to your `k8s-0` VM and retrieve the contents of the `.kube/config` file (admin context, which can be changed later). Then, on your workstation, create a `.kube` directory, add a `config` file inside, and paste the content you copied. Done! :tada:
 
-sur mon pc de travail je crée un dossier `.kube` et dans ce dossier j'ajoute un fichier `config` et je colle le contenue que je viens de copier et voilà!!! :tada: 
+Launch k9s from the command line...
 
-Lancer k9s dans une invite de commande...
+![k9s Ready](./Images/k9s-ready-to-use.png)
 
 ![](./Images/k9s-ready-to-use.png)
 
-Vous aurez aussi besoin d'installer le cli `kubectl`  sur votre poste de travail [[doc](https://kubernetes.io/fr/docs/tasks/tools/install-kubectl/)]
+You will also need to install the `kubectl` CLI on your workstation  [[doc](https://kubernetes.io/fr/docs/tasks/tools/install-kubectl/)]
 
 ```shell
 # Debian/ubuntu
@@ -251,15 +247,57 @@ sudo apt-get install -y kubectl
 
 
 
-*(i) par exemple dans k9s lorsque vous voulez editer le manifest d'un pod*
+(i) For example, in k9s, when you want to edit a pod's manifest.
+
+
+
+## :facepunch: Contribution
+
+Contributions are welcome! If you'd like to contribute, please follow these steps:
+
+1. **Fork the repository** to your own GitHub account.
+2. **Clone your fork** locally:
+
+```shell
+git clone https://github.com/yourusername/my-homelab.git
+cd manage-repo
+```
+
+**Create a new branch** for your feature or bug fix:
+
+```shell
+git checkout -b my-new-feature
+```
+
+**Make your changes** and commit them with a clear message:
+
+```shell
+git commit -m "Add new feature"
+```
+
+**Push your branch** to your fork:
+
+1. ```shell
+   git push origin my-new-feature
+   ```
+
+2. **Open a Pull Request** on the original repository and describe your changes.
+
+By following these steps, you can help improve the project for everyone!
+
+
+
+
 
 # Index
 
-## Comment ajouter ajouter un espace de stockage
+## How to Add a Storage Space
 
 :eyes: https://nubcakes.net/index.php/2019/03/05/how-to-add-storage-to-proxmox/
 
 ## Terraform
 
 :eyes: https://developer.hashicorp.com/terraform/install
+
+
 
