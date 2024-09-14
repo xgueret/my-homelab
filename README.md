@@ -114,7 +114,7 @@ ssh root@192.168.1.64
 
 ## Infrastructure as Code (IaC)
 
-### Step 1: Configure Proxmox
+### Step 1: Configure Proxmox,  creating a vm Template and create role and token for Terraform
 
 #### Preparing Proxmox to be Managed by Ansible
 
@@ -137,32 +137,13 @@ ansible-playbook -u root prepare_vm.yml --tags "bootstrap-vm"
 
 ```shell
 cd Proxmox/iac/etape1
-ansible-playbook -u ansible prepare_vm.yml --tags "create_vm_template"
+```
+
+```shell
+ansible-playbook playbook.yml
 ```
 
 ### Step 2: Provision VMs for the K8s Cluster
-
-Connect to the Proxmox server:
-
-```shell
-ssh root@192.168.1.64
-```
-
-Create a Terraform provisioning role:
-
-```shell
-pveum role add TerraformProv -privs "Datastore.AllocateSpace Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt"
-pveum user add terraform-prov@pve --password secure1234
-pveum aclmod / -user terraform-prov@pve -role TerraformProv
-```
-
-Create a token:
-
-```shell
-pveum user token add terraform-prov@pve terraform -expire 0 -privsep 0 -comment "Terraform token"
-```
-
-
 
 :warning: Before proceeding, add the **`terraform.tfvars`** file to the **Proxmox/iac/etape2** directory.
 
@@ -185,6 +166,8 @@ terraform init
 terraform plan
 terraform apply
 ```
+
+*(i) the token was generated in the terraform_token file and accessible from the proxmox server during step 1*
 
 ### Step 3: Install the K8s Cluster (Kubeadm)
 

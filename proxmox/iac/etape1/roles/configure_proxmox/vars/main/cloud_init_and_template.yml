@@ -1,0 +1,16 @@
+# Image URL and checksum for the Ubuntu 22.04 server cloud image
+
+    # Template for the Ubuntu 22.04 server cloud image
+templates:
+  - name: "ubuntu-2204-cloudinit-template"
+    id: 9001
+    memory: 2048
+    cpu: 2
+    desc: "ubuntu 22.04 server cloudimg-amd64-disk-kvm"
+    root_passwd: '{{ lookup("env", "ssh_key_file") or "rootpasswd" }}' # The password for the root user on the VM.
+    cloud_init_image:
+      name: ubuntu-22.04-server
+      url: https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img
+      url_checksum: sha256:441b3f120a98f37dd4a26e5698677bd0ad2998a7c65f5f3fe78d6a62c3695ee2
+      path: /tmp/ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img
+      # curl -O https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS | grep ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img SHA256SUMS
