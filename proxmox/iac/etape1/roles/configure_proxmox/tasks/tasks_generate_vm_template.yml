@@ -1,0 +1,75 @@
+## Download cloud image
+- name: Download cloud image
+  ansible.builtin.get_url:
+    url: "{{ item.cloud_init_image.url }}"
+    dest: "{{ item.cloud_init_image.path }}"
+    checksum: "{{ item.cloud_init_image.url_checksum }}"
+    mode: "0700"
+  changed_when: false
+
+## Install qemu-guest into cloud image and set root passwd
+- name: Install qemu-guest into cloud image and set root passwd
+  ansible.builtin.command: |
+    virt-customize -a {{ item.cloud_init_image.path }} \
+    --root-password password:{{ item.root_passwd }} \
+    --install qemu-guest-agent
+  changed_when: false
+
+## Create a VM to use as a item
+- name: Create a VM to use as a item
+  ansible.builtin.command: |
+    qm create {{ item.id }} \
+    --memory {{ item.memory }} \
+    --core {{ item.cpu }} \
+    --name {{ item.name }} \
+    --net0 virtio,bridge=vmbr0
+    --description test
+  changed_when: false
+
+## Import disk image
+- name: Import disk image
+  ansible.builtin.command: |
+    qm importdisk {{ item.id }} {{ item.cloud_init_image.path }} local-lvm
+  changed_when: false
+
+## Attach disk to vm
+- name: Attach disk to vm
+  ansible.builtin.command: |
+    qm set {{ item.id }} --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-{{ item.id }}-disk-0
+  changed_when: false
+
+## Configure boot from the image
+- name: Configure boot from the image
+  ansible.builtin.command: |
+    qm set {{ item.id }} --boot c --bootdisk scsi0
+  changed_when: false
+
+## Add cloud-init image as CDROM
+- name: Add cloud-init image as CDROM
+  ansible.builtin.command: |
+    qm set {{ item.id }} --ide2 local-lvm:cloudinit
+  changed_when: false
+
+## Attach serial console
+- name: Attach serial console
+  ansible.builtin.command: |
+    qm set {{ item.id }} --serial0 socket --vga serial0
+  changed_when: false
+
+## Enable agent
+- name: Enable agent
+  ansible.builtin.command: |
+    qm set {{ item.id }} --agent enabled=1
+  changed_when: false
+
+## Create item
+- name: Create item
+  ansible.builtin.command: |
+    qm template {{ item.id }}
+  changed_when: false
+
+## Resize disk 2G (default) + 18G to 20G
+- name: Resize disk 2G (default) + 18G to 20G
+  ansible.builtin.command: |
+    qm resize {{ item.id }} scsi0 +18G
+  changed_when: false

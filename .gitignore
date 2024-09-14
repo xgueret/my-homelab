@@ -51,3 +51,6 @@ Thumbs.db
 
 clean_known_hosts.sh
 playground/
+
+# Ansible secrets files
+**/.secrets/**
