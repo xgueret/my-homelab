@@ -1,0 +1,45 @@
+---
+- name: Install a list of packages
+  ansible.builtin.apt:
+    pkg: "{{ packages }}"
+  tags:
+    - essentials
+    - security_ssh_hardening
+    - terraform_permissions
+    - generate_vm_template
+
+- name: Strengthening the SSH security of the proxmox server
+  ansible.builtin.include_tasks:
+    file: security_ssh_hardening.yml
+    apply:
+      tags:
+        - security_ssh_hardening
+  tags:
+    - always
+
+- name: Setup terraform terraform_permissions
+  ansible.builtin.include_tasks:
+    file: terraform_permissions.yml
+    apply:
+      tags:
+        - terraform_permissions
+  tags:
+    - always
+
+- name: Add token for terraform
+  ansible.builtin.include_tasks:
+    file: terraform_add_token.yml
+    apply:
+      tags:
+        - terraform_add_token
+  tags:
+    - always
+
+- name: Generate vm template
+  ansible.builtin.include_tasks:
+    file: generate_vm_template.yml
+    apply:
+      tags:
+        - generate_vm_template
+  tags:
+    - always

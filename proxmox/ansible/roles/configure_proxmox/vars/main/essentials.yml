@@ -1,0 +1,5 @@
+---
+packages:
+# The essentials
+  - libguestfs-tools
+  - jq
