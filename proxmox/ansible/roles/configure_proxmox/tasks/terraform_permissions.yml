@@ -1,0 +1,23 @@
+---
+# We copy the config file to the remote host
+- name: Copy config file to remote host
+  ansible.builtin.copy:
+    src: common.sh
+    dest: /tmp/common.sh
+    mode: '0644'
+
+# We copy the Proxmox setup script to the remote host
+- name: Copy Proxmox setup script to remote host
+  ansible.builtin.copy:
+    src: setup_proxmox.sh
+    dest: /tmp/setup_proxmox.sh
+    mode: '0755'
+
+# We execute the Proxmox setup script
+- name: Execute Proxmox setup script
+  ansible.builtin.command: /tmp/setup_proxmox.sh
+  environment:
+    TERRAFORM_PASSWORD: "{{ terraform_password }}"
+  register: setup_script_result
+  changed_when: >
+    setup_script_result.stdout.find('Command succeeded') != -1
