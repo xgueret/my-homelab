@@ -1,0 +1,10 @@
+---
+- name: Deploy traefik
+  become: true
+  hosts:
+    - traefik_vm
+  roles:
+    - role: docker
+    - role: traefik
+  vars_files:
+    - .secrets/config_vars.yml

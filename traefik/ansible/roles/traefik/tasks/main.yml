@@ -1,0 +1,56 @@
+---
+- name: Create path /opt/traefik/*version*
+  ansible.builtin.file:
+    path: "/opt/traefik/{{ traefik_version }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Create acme.json file
+  ansible.builtin.file:
+    path: "/opt/traefik/{{ traefik_version }}/acme.json"
+    state: touch
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy dynamic config from template (YAML)
+  ansible.builtin.template:
+    src: dynamic.yml.j2
+    dest: "/opt/traefik/{{ traefik_version }}/dynamic.yml"
+    owner: root
+    group: root
+    mode: '0644'
+    force: true
+
+- name: Copy Traefik config from template (YAML)
+  ansible.builtin.template:
+    src: traefik.yml.j2
+    dest: "/opt/traefik/{{ traefik_version }}/traefik.yml"
+    owner: root
+    group: root
+    mode: '0644'
+    force: true
+
+- name: Copy Docker Compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: /opt/traefik/{{ traefik_version }}/docker-compose.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Stop and remove existing Docker Compose services
+  ansible.builtin.shell: |
+    cd /opt/traefik/{{ traefik_version }}
+    docker compose down -v
+  register: traefik_compose_down
+  changed_when: true
+
+- name: Start Docker Compose services
+  ansible.builtin.shell: |
+    cd /opt/traefik/{{ traefik_version }}
+    docker compose up -d
+  register: traefik_compose_up
+  changed_when: true

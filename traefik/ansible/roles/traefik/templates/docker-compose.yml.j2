@@ -1,0 +1,19 @@
+services:
+  reverse-proxy:
+    image: "traefik:v{{ traefik_version }}"
+    container_name: "reverse-proxy"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "{{ proxmox.traefik_port }}:{{ proxmox.traefik_port }}"
+    volumes:
+      - "/opt/traefik/{{ traefik_version }}/traefik.yml:/etc/traefik/traefik.yml"
+      - "/opt/traefik/{{ traefik_version }}/dynamic.yml:/etc/traefik/dynamic.yml"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - traefik-net
+      
+networks:
+  traefik-net:
+    driver: bridge
+ 
