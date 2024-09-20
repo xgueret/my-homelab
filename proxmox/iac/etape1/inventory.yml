@@ -1,6 +1,0 @@
-all:
-  children:
-    proxmox_hosts:
-      hosts:
-        proxmox.local:
-          

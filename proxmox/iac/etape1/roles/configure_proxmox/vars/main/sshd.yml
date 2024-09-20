@@ -1,9 +1,0 @@
-# The name of ssh daemon
-sshd: ssh
-
-# Where is ssh config is located at
-sshd_config: /etc/ssh/sshd_config
-
-# defaults file for roles/bootstrap-vm
-ssh_user: '{{ lookup("env", "ssh_user") or "ansible" }}'  # The default user to use when connecting to the VM.
-ssh_identity_key: '{{ lookup("env", "ssh_key_file") or "~/.ssh/proxmox.pub" }}' # The public key to use when connecting to the VM.
