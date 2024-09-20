@@ -7,4 +7,4 @@
       tags:
         - configure_proxmox # This line specifies that this role should be applied when running the playbook with the "configure_proxmox" tag.
   vars_files:
-    - .secrets/terraform_permissions_secrets.yml
+    - .secrets/config.yml
