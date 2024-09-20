@@ -1,0 +1,5 @@
+all:
+  children:
+    traefik_vm:
+      hosts:
+        reverse-proxy.local:

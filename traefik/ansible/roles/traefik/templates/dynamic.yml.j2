@@ -1,0 +1,35 @@
+http:
+  middlewares:
+    basic-auth:
+      basicAuth:
+        users:
+          - "{{ user.login }}:{{ user.passwd }}"
+
+  serversTransports:
+    mytransport:
+      insecureSkipVerify: true
+
+  routers:
+    api:
+      rule: "Host(`{{ traefik_domain }}`)"
+      service: "api@internal"
+      entryPoints:
+        - "http"
+      middlewares:
+        - "basic-auth"
+    
+    proxmox:
+      rule: "Host(`{{ traefik_domain }}`)"
+      entryPoints:
+        - "proxmox"
+      service: proxmox
+      tls: {}
+       
+  services:
+    proxmox:
+      loadBalancer:
+        servers:
+          - url: "https://{{ proxmox.ip }}:{{ proxmox.port }}"
+        passHostHeader: true
+        serversTransport: "mytransport"
+  

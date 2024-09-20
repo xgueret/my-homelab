@@ -114,7 +114,7 @@ ssh root@192.168.1.64
 
 ## Infrastructure as Code (IaC)
 
-### Step 1: Configure Proxmox,  creating a vm Template and create role and token for Terraform
+### Configure Proxmox
 
 #### Preparing Proxmox to be Managed by Ansible
 
@@ -128,37 +128,48 @@ apt install sudo
 
 (i) From the workstation with Ansible installed:
 
-```shell
-cd Proxmox/iac/etape1
-ansible-playbook -u root prepare_vm.yml --tags "bootstrap-vm"
-```
-
-#### Creating a VM Template
+To execute this playbook, you need to use the root user of the target machine. Specifying the `--tags "security_ssh_hardening"` tag will allow us to apply specific tasks that will enhance the security of the server access and create a dedicated user for running Ansible playbooks.
 
 ```shell
-cd Proxmox/iac/etape1
+cd proxmox/ansible
+ansible-playbook -u root playbook.yml --tags "security_ssh_hardening"
 ```
+
+Now we can execute all the tasks in this playbook.
 
 ```shell
 ansible-playbook playbook.yml
 ```
 
-### Step 2: Provision VMs for the K8s Cluster
+:warning: **<u>Take the time to fully understand what this playbook does, as well as the .sh scripts located in the files folder, before executing it.</u>**
 
-:warning: Before proceeding, add the **`terraform.tfvars`** file to the **Proxmox/iac/etape2** directory.
 
-(i) Replace `192.168.1.64` with your local IP address:
 
+### Provision one or more VMs
+
+You will need to create the **terraform.tfvars** file and add your own values for the following variables.
+
+```properties
+# # Proxmox API credentials
+pm_api_token_id = "terraform-prov@pve!terraform"
+pm_api_url      = "https://proxmox.local:8006/api2/json/"
+
+vm_count        = 1
+
+vm_template     = "ubuntu-2204-cloudinit-template"  # Name of the Proxmox template to clone for the VM
+vm_disk0_size   = "40G"        # Size of the primary disk attached to the VM (e.g., '40G' for 40 gigabytes)
+vm_cpu_cores    = 2            # Number of CPU cores assigned to the VM
+vm_memory       = 4096         # Amount of RAM assigned to the VM (in MB)
+vm_name_prefix  = "test-vm"
+vm_ip_start     = 10
 ```
-proxmox_api_url = "https://192.168.1.64:8006/api2/json"
-ssh_key = "votre clef public"
-```
 
+Apply this Terraform job to provision one or more VMs on the Proxmox server.
 
-
-Provision VMs for setting up a Kubernetes cluster with Kubeadm:
+*(i) The token was generated via the Ansible playbook and is available on the Proxmox server in the root home directory. You can display it using the command `cat .terraform_token`. Once you have copied and secured it, you are free to delete it.*
 
 ```shell
+cd proxmox/terraform
 cd Proxmox/iac/etape2
 export PM_API_TOKEN_ID='terraform-prov@pve!terraform' 
 export PM_API_TOKEN_SECRET="[le token généré précédemment]" 
@@ -167,9 +178,9 @@ terraform plan
 terraform apply
 ```
 
-*(i) the token was generated in the terraform_token file and accessible from the proxmox server during step 1*
 
-### Step 3: Install the K8s Cluster (Kubeadm)
+
+### Install the K8s Cluster (Kubeadm) (:construction: This chapter is a work in progress.)
 
 ```shell
 cd Kubernetes/iac
@@ -187,7 +198,7 @@ ansible-playbook -u ubuntu setup-k8s.yml
 
  :tada: Enjoy!!!!
 
-# Outils
+# Outils​ :construction:
 
 ## k9s
 
@@ -270,8 +281,6 @@ By following these steps, you can help improve the project for everyone!
 
 
 
-
-
 # Index
 
 ## How to Add a Storage Space
@@ -281,6 +290,3 @@ By following these steps, you can help improve the project for everyone!
 ## Terraform
 
 :eyes: https://developer.hashicorp.com/terraform/install
-
-
-

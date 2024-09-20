@@ -13,4 +13,4 @@ templates:
       # curl -O https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS | grep ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img SHA256SUMS
 
 ansible_key_pub: "{{ lookup('file', '~/.ssh/id_vm_proxmox_rsa.pub') }}"
-root_passwd: '{{ lookup("env", "ssh_key_file") or "rootpasswd" }}' 
+root_passwd: '{{ lookup("env", "ssh_key_file") or "rootpasswd" }}'
