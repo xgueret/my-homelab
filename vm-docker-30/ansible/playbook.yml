@@ -1,10 +1,11 @@
 ---
-- name: Deploy traefik
+- name: Configure vm-docker-30
   become: true
   hosts:
     - traefik_vm
   roles:
     - role: docker
     - role: traefik
+    - role: portainer-agent
   vars_files:
     - .secrets/config_vars.yml

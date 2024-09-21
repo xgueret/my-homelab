@@ -11,9 +11,9 @@ services:
       - "/opt/traefik/{{ traefik_version }}/dynamic.yml:/etc/traefik/dynamic.yml"
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
-      - traefik-net
-      
+      - vm-docker-30-net
+ 
 networks:
-  traefik-net:
+  vm-docker-30-net:
     driver: bridge
  
