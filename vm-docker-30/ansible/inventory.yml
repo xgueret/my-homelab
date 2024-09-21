@@ -2,4 +2,4 @@ all:
   children:
     traefik_vm:
       hosts:
-        reverse-proxy.local:
+        vm-docker-30.local:

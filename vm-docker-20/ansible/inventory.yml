@@ -1,0 +1,5 @@
+all:
+  children:
+    ubuntu_docker_vm:
+      hosts:
+        vm-docker-20.local:

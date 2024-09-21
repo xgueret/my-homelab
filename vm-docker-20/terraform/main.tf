@@ -1,6 +1,6 @@
-resource "proxmox_vm_qemu" "vm" {
+resource "proxmox_vm_qemu" "vm-gen" {
   count       = var.vm_count
-  name        = "${var.vm_name_prefix}-${count.index + 1}"
+  name        = "${var.vm_name_prefix}-${var.vm_ip_start + count.index}"
   target_node = var.vm_target_node
   desc        = var.project_description
   vmid        = var.vm_baseid + count.index  # Be sure that the id is unique!
@@ -14,6 +14,7 @@ resource "proxmox_vm_qemu" "vm" {
   memory  = var.vm_memory
   scsihw  = "virtio-scsi-pci"
   bootdisk = "scsi0"
+  # Utilisation de la base IP extraite de vm_gateway
   ipconfig0 = "ip=${join(".", slice(split(".", var.vm_gateway), 0, 3))}.${var.vm_ip_start + count.index}/${var.vm_netmask},gw=${var.vm_gateway}"
 
 
