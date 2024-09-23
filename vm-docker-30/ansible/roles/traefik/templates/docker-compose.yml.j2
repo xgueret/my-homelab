@@ -1,19 +1,26 @@
 services:
-  reverse-proxy:
-    image: "traefik:v{{ traefik_version }}"
-    container_name: "reverse-proxy"
+  traefik:
+    image: traefik
+    container_name: traefik
     ports:
       - "80:80"
       - "443:443"
-      - "{{ proxmox.traefik_port }}:{{ proxmox.traefik_port }}"
     volumes:
-      - "/opt/traefik/{{ traefik_version }}/traefik.yml:/etc/traefik/traefik.yml"
-      - "/opt/traefik/{{ traefik_version }}/dynamic.yml:/etc/traefik/dynamic.yml"
       - "/var/run/docker.sock:/var/run/docker.sock"
-    networks:
-      - vm-docker-30-net
- 
-networks:
-  vm-docker-30-net:
-    driver: bridge
- 
+      - "/data/traefik/traefik.yml:/etc/traefik/traefik.yml"
+      - "/data/traefik/dynamic.yml:/etc/traefik/dynamic.yml"
+      - "/data/traefik/acme.json:/data/acme.json"
+
+    labels:
+      - "traefik.http.middlewares.httpsonly.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.httpsonly.redirectscheme.permanent=true"
+      - "traefik.http.routers.httpsonly.rule=HostRegexp(`{any:.*}`)"
+      - "traefik.http.routers.httpsonly.middlewares=httpsonly"
+      - "traefik.http.routers.dashboard.rule=Host(`{{ traefik_domain }}`)"
+      - "traefik.http.routers.dashboard.service=dashboard@internal"
+      - "traefik.http.routers.api.rule=Host(`{{ traefik_domain }}`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.routers.dashboard.tls.certresolver=myresolver"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"

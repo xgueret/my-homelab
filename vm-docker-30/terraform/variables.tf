@@ -78,7 +78,7 @@ variable "vm_netmask" {
 variable "vm_gateway" {
   description = "The default gateway for the VM"
   type        = string
-  default     = "192.168.1.1"
+  default     = "192.168.1.254"
 }
 
 variable "vm_disk0_size" {

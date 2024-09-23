@@ -51,6 +51,13 @@
       - docker-compose-plugin
     state: present
 
+- name: Add user to the Docker group
+  ansible.builtin.user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+
+
 - name: Start and enable Docker service
   ansible.builtin.systemd:
     name: docker
