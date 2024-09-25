@@ -8,6 +8,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/data/traefik/traefik.yml:/etc/traefik/traefik.yml"
+      - "/data/traefik/dynamic.yml:/etc/traefik/dynamic.yml"
       - "/data/traefik/acme.json:/data/acme.json"
 
     labels:
@@ -35,4 +36,5 @@ services:
       - "traefik.http.routers.api.service=api@internal"
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.tls.certresolver=myresolver"
+      
       
