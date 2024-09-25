@@ -1,7 +1,0 @@
----
-- name: Configure ubuntu docker vm
-  hosts: ubuntu_docker_vm
-  become: true
-
-  roles:
-    - role: docker

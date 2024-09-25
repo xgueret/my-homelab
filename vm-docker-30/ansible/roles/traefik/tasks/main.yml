@@ -23,6 +23,15 @@
     group: root
     mode: '0600'
 
+- name: Copy dynamic config from template (YAML)
+  ansible.builtin.template:
+    src: dynamic.yml.j2
+    dest: "/data/traefik/dynamic.yml"
+    owner: root
+    group: root
+    mode: '0644'
+    force: true
+
 - name: Copy Traefik config from template (YAML)
   ansible.builtin.template:
     src: traefik.yml.j2

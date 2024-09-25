@@ -1,0 +1,23 @@
+http:
+  serversTransports:
+    proxmox-transport:
+      insecureSkipVerify: true
+
+  routers:
+    proxmox:
+      rule: "Host(`{{ proxmox_domain }}`)"
+      entryPoints:
+        - websecure
+      service: proxmox-service
+      tls:
+        certresolver: myresolver
+        domains:
+          - main: "{{ proxmox_domain }}"
+
+  services:
+    proxmox-service:
+      loadBalancer:
+        serversTransport: proxmox-transport
+        servers:
+          - url: "https://{{ proxmox.ip }}:{{ proxmox.port }}"
+        passHostHeader: true
