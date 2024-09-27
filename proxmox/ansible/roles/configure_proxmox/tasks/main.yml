@@ -5,7 +5,7 @@
   tags:
     - essentials
     - security_ssh_hardening
-    - terraform_permissions
+    - setup_roles_users_tokens
     - generate_vm_template
 
 - name: Strengthening the SSH security of the proxmox server
@@ -17,21 +17,12 @@
   tags:
     - always
 
-- name: Setup terraform terraform_permissions
+- name: Add setup roles users tokens
   ansible.builtin.include_tasks:
-    file: terraform_permissions.yml
+    file: setup_roles_users_tokens.yml
     apply:
       tags:
-        - terraform_permissions
-  tags:
-    - always
-
-- name: Add token for terraform
-  ansible.builtin.include_tasks:
-    file: terraform_add_token.yml
-    apply:
-      tags:
-        - terraform_add_token
+        - setup_roles_users_tokens
   tags:
     - always
 
