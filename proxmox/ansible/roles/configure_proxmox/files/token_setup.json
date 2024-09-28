@@ -29,6 +29,19 @@
         "VM.Monitor",
         "VM.PowerMgmt"
       ]
+    },
+    {
+      "name": "ansible",
+      "ugid": "ansible-prov@pve",
+      "role": "AnsibleProv",
+      "comment": "Ansible token",
+      "expire": 0,
+      "privsep": 0,
+      "privileges": [
+        "VM.PowerMgmt", 
+        "VM.Monitor",
+        "VM.Audit"
+      ]
     }
   ]
 }

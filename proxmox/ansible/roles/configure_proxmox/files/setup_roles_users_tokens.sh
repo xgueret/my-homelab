@@ -77,7 +77,7 @@ for i in $(seq 0 $((nb_token - 1))); do
   else
       echo "Creating token '$TOKEN_NAME' for user '$UGID'."
       # Créer le token
-      run_command "pveum user token add $UGID $TOKEN_NAME -expire $TOKEN_EXPIRE -privsep $TOKEN_PRIVSEP -comment \"$TOKEN_COMMENT\" -o json > /root/.terraform_token"
+      run_command "pveum user token add $UGID $TOKEN_NAME -expire $TOKEN_EXPIRE -privsep $TOKEN_PRIVSEP -comment \"$TOKEN_COMMENT\" -o json > /root/.${TOKEN_NAME}_token"
   fi
 
 done

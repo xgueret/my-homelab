@@ -1,0 +1,13 @@
+---
+- name: Check and display the content of all token
+  hosts: proxmox_hosts
+  become: true
+  vars:
+    tokens:
+      - terraform
+      - ansible
+  tasks:
+    - name: Check end display all tokens
+      ansible.builtin.include_tasks:
+        file: check_and_display_token.yml
+      loop: "{{ tokens }}"
