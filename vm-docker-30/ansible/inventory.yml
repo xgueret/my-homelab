@@ -1,5 +1,0 @@
-all:
-  children:
-    traefik_vm:
-      hosts:
-        vm-docker-30.local:
