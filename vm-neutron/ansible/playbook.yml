@@ -1,8 +1,8 @@
 ---
-- name: Configure vm-docker-30
+- name: Configure neutron-10
   become: true
   hosts:
-    - traefik_vm
+    - neutron
   roles:
     - role: docker
     - role: traefik

@@ -3,8 +3,11 @@
   hosts: proxmox_hosts
   become: true
   roles:
-    - role: configure_proxmox # This line imports the "configure_proxmox" role, which is used to configure Proxmox.
+    - role: configure
       tags:
-        - configure_proxmox # This line specifies that this role should be applied when running the playbook with the "configure_proxmox" tag.
+        - configure
+    - role: manage
+      tags:
+        - manage
   vars_files:
     - .secrets/config.yml

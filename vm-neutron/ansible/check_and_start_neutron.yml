@@ -1,0 +1,26 @@
+- name: Configure neutron-10
+  become: true
+  hosts:
+    - proxmox
+  gather_facts: false
+  vars_files:
+    - .secrets/neutron_vars.yml
+  tasks:
+    - name: Gather ansible_default_ipv4 fact
+      ansible.builtin.setup:
+        filter: ansible_default_ipv4
+
+    - name: Check the status of neutron
+      community.general.proxmox_kvm:
+        api_host: "{{ ansible_default_ipv4.address }}"
+        api_user: "{{ proxmox_user }}"
+        api_token_id: "{{ proxmox_token_id }}"
+        api_token_secret: "{{ proxmox_token_secret }}"
+        vmid: "{{ neutron_vm_baseid }}"
+        state: started
+        node: "{{ proxmox_node_name }}"
+      register: vm_status
+
+    - name: Display neutron status
+      ansible.builtin.debug:
+        msg: "status of neutron: {{ vm_status }}"
