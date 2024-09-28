@@ -3,3 +3,6 @@ all:
     proxmox:
       hosts:
         pve.local:
+    neutron:
+      hosts:
+        neutron-10.local:
