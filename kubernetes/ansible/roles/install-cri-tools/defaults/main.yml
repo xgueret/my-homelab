@@ -1,4 +1,0 @@
----
-# defaults file for roles/install-cri-tools
-# https://github.com/kubernetes-sigs/cri-tools
-crictl_version: '{{ lookup("env", "crictl_version") or "1.29.0" }}'

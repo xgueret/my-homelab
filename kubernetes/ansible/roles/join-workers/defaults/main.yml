@@ -1,3 +1,0 @@
----
-# defaults file for roles/join-workers
-join_command_location: "join_command.out"
