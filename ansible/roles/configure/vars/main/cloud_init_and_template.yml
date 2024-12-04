@@ -11,6 +11,28 @@ templates:
       url_checksum: sha256:441b3f120a98f37dd4a26e5698677bd0ad2998a7c65f5f3fe78d6a62c3695ee2
       path: /tmp/ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img
       # curl -O https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS | grep ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img SHA256SUMS
+  - name: "debian-12-cloudinit-template"
+    id: 9002
+    memory: 2048
+    cpu: 2
+    desc: "debian 12 bookworm cloudimg-amd64-disk-kvm"
+    cloud_init_image:
+      name: debian-12-cloudimg
+      url: https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
+      url_checksum: sha512:9792c2c5dfdb796fd7caaf0e56f61e356b36eb76032f453515072ad9e517930d55d2e6705a4fea96a2413a656e4561eb018c52bdf4f24cd88b02d19e9daad76b
+      path: /tmp/debian-12-genericcloud-amd64.qcow2
+      # curl -O https://cloud.debian.org/images/cloud/bookworm/latest/SHA512SUMS | grep debian-12-genericcloud-amd64.qcow2 SHA512SUMS
+  - name: "opensuse-155-cloudinit-template"
+    id: 9003
+    memory: 2048
+    cpu: 2
+    desc: "OpenSUSE Leap 15.5 cloudimg-amd64-disk-kvm"
+    cloud_init_image:
+      name: opensuse-15.5-cloudimg
+      url: https://download.opensuse.org/distribution/leap/15.6/appliances/openSUSE-Leap-15.6-Minimal-VM.x86_64-kvm-and-xen.qcow2
+      url_checksum: sha256:dc6b9ad6638155de6eba1824995b4a5c0bfbd7dfeffcbab47c2f73d569665058
+      path: /tmp/opensuse-15.6-minimal-vm-cloud.qcow2
+      # curl -O https://download.opensuse.org/distribution/leap/15.6/appliances/openSUSE-Leap-15.6-Minimal-VM.x86_64-kvm-and-xen.qcow2.sha256
 
 ansible_key_pub: "{{ lookup('file', '~/.ssh/id_vm_proxmox_rsa.pub') }}"
 root_passwd: '{{ lookup("env", "ssh_key_file") or "rootpasswd" }}'

@@ -16,12 +16,14 @@
   changed_when: false
 
 # Create ansible user without password in the image
-- name: Create ansible user without password in the cloud image
+- name: Create ansible user and setup home directory in the cloud image
   ansible.builtin.command: |
     virt-customize -a {{ item.cloud_init_image.path }} \
-    --run-command 'useradd -m -s /bin/bash ansible' \
+    --run-command 'useradd -m -s /bin/bash -g root ansible' \
+    --run-command "groupadd -f wheel" \
+    --run-command "usermod -aG wheel ansible" \
     --run-command 'mkdir -p /home/ansible/.ssh' \
-    --run-command 'chown -R ansible:ansible /home/ansible/.ssh' \
+    --run-command 'chown -R ansible:root /home/ansible/.ssh' \
     --run-command 'chmod 700 /home/ansible/.ssh'
   changed_when: false
 
@@ -31,6 +33,9 @@
     virt-customize -a {{ item.cloud_init_image.path }} \
     --run-command 'usermod -aG sudo ansible'
   changed_when: false
+  when:
+    - "'opensuse' not in item.cloud_init_image.name | lower"
+    - "'debian' in item.cloud_init_image.name | lower or 'ubuntu' in item.cloud_init_image.name | lower" 
 
 ## Set ansible user to have passwordless sudo
 - name: Add ansible user to sudoers with NOPASSWD
@@ -38,13 +43,15 @@
     virt-customize -a {{ item.cloud_init_image.path }} \
     --run-command "echo 'ansible ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers"
   changed_when: false
+  when: 
+    - "'opensuse' not in item.cloud_init_image.name | lower"
 
 ## Add public key to ansible user authorized_keys
 - name: Add public key for ansible user
   ansible.builtin.command: |
     virt-customize -a {{ item.cloud_init_image.path }} \
     --run-command "echo '{{ ansible_key_pub }}' > /home/ansible/.ssh/authorized_keys" \
-    --run-command 'chown ansible:ansible /home/ansible/.ssh/authorized_keys' \
+    --run-command 'chown ansible:root /home/ansible/.ssh/authorized_keys' \
     --run-command 'chmod 600 /home/ansible/.ssh/authorized_keys'
   changed_when: false
 
