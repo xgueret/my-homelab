@@ -7,7 +7,8 @@
 # Allow 'wheel' group to have passwordless sudo
 - name: Allow 'wheel' group to have passwordless sudo
   ansible.builtin.lineinfile:
-    dest: /etc/sudoers
+    dest: /etc/sudoers.d/wheel
+    create: true
     state: present
     regexp: "^%wheel"
     line: "%wheel ALL=(ALL) NOPASSWD: ALL"

@@ -17,6 +17,7 @@ pyvenv.cfg
 *.tfstate.*
 *.tfvars
 *.tfplan
+**.terraform.lock*
 
 # Directory for Terraform's workspace
 .terraform/
