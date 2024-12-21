@@ -6,20 +6,23 @@
 
 ## Proxmox
 
-![](./Images/proxmox.png)
+![](./media/img/proxmox.png)
 
 :eyes: https://www.proxmox.com/en/
 
-Download the ISO for version **7.4-1**:
+Download the ISO for version **8.3-1**:
 
 ```shell
-wget https://enterprise.proxmox.com/iso/proxmox-ve_7.4-1.iso
+pve_version="8.3-1"
+pve_iso="proxmox-ve_$pve_version.iso"
+pve_iso_checksum=$(curl -sL https://enterprise.proxmox.com/iso/SHA256SUMS | grep $pve_iso | awk '{print $1}')
+wget "https://enterprise.proxmox.com/iso/$pve_iso"
 ```
 
 Verify the integrity of the download:
 
 ```shell
-echo "55b672c4b0d2bdcbff9910eea43df3b269aaab3f23e7a1df18b82d92eb995916 proxmox-ve_7.4-1.iso" | sha256sum -c
+echo "$pve_iso_checksum $pve_iso" | sha256sum -c
 ```
 
 
@@ -63,7 +66,7 @@ sudo mkfs.vfat -n 'UTILS' -I /dev/sdb1
 Create the bootable USB drive using **dd**:
 
 ```shell
-sudo dd if=./proxmox-ve_7.4-1.iso of=/dev/sdb status=progress
+sudo dd if=./$pve_iso of=/dev/sdb status=progress
 ```
 
 
@@ -107,7 +110,13 @@ eval $(ssh-agent)
 ssh-add ~/.ssh/proxmox
 ssh root@192.168.1.180
 ```
-
+# Dependances
+- `ansible`
+- `ssh`
+- `yq`
+```shell
+sudo apt install yq
+```
 ## Infrastructure as Code (IaC)
 
 ### Configure Proxmox
@@ -152,8 +161,15 @@ ansible-playbook -u root playbook.yml --tags "security_ssh_hardening"
 Adapt the cloud-init image checksum to the current
 
 ```shell 
-checksum=$(curl -sL https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS | grep ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img | awk '{print $1}')
-sed -i'.bak' 's/url_checksum:.*/url_checksum: sha256:'$checksum'/' roles/configure/vars/main/cloud_init_and_template.yml
+../../update_checksums.sh
+
+# Get checksums from remote
+# ubuntu_checksum=$(curl -sL https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS | grep ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img | awk '{print $1}')
+# debian_checksum=$(curl -sL https://cloud.debian.org/images/cloud/bookworm/latest/SHA512SUMS | grep debian-12-genericcloud-amd64.qcow2 | awk '{print $1}')
+# opensuse_checksum=$(curl -sL https://download.opensuse.org/distribution/leap/15.6/appliances/openSUSE-Leap-15.6-Minimal-VM.x86_64-kvm-and-xen.qcow2.sha256 | grep openSUSE-Leap-15.6-Minimal-VM.x86_64-kvm-and-xen.qcow2 | awk '{print $1}')
+
+# Replace with sed only if there is one cloud init image template alone (not working for several templates)
+# sed -i'.bak' 's/url_checksum:.*/url_checksum: sha256:'$checksum'/' roles/configure/vars/main/cloud_init_and_template.yml
 ```
 Create an SSH key pair for vm :
 
@@ -191,20 +207,20 @@ vm_ip_start     = 10
 ```
 
 ```shell
-cd ../terraform-vm
+cd ../terraform
 cat > terraform.tfvars <<EOF
 # # Proxmox API credentials
 pm_api_token_id = $(ssh root@192.168.1.180 -t cat .terraform_token | jq .\"full-tokenid\")
 pm_api_token_secret = $(ssh root@192.168.1.180 -t cat .terraform_token | jq ."value")
 pm_api_url      = "https://proxmox.local:8006/api2/json/"
 
-vm_count        = 1
+vm_count        = 3
 
 vm_template     = "ubuntu-2204-cloudinit-template"  # Name of the Proxmox template to clone for the VM
 vm_disk0_size   = "40G"        # Size of the primary disk attached to the VM (e.g., '40G' for 40 gigabytes)
 vm_cpu_cores    = 2            # Number of CPU cores assigned to the VM
 vm_memory       = 4096         # Amount of RAM assigned to the VM (in MB)
-vm_name_prefix  = "test-vm"
+vm_name_prefix  = "vm"
 vm_ip_start     = 10
 vm_target_node  = "homebox"
 EOF
@@ -215,12 +231,9 @@ Apply this Terraform job to provision one or more VMs on the Proxmox server.
 *(i) The token was generated via the Ansible playbook and is available on the Proxmox server in the root home directory. You can display it using the command `cat .terraform_token`. Once you have copied and secured it, you are free to delete it.*
 
 ```shell
-export PM_API_TOKEN_ID=$(ssh root@192.168.1.180 -t cat .terraform_token | jq .\"full-tokenid\")
-export PM_API_TOKEN_SECRET=$(ssh root@192.168.1.180 -t cat .terraform_token | jq ."value")
+export TF_VAR_pm_api_token_id=$(ssh root@192.168.1.180 -t cat .terraform_token | jq .\"full-tokenid\")
+export TF_VAR_pm_api_token_secret=$(ssh root@192.168.1.180 -t cat .terraform_token | jq ."value")
 terraform init
 terraform plan
 terraform apply
 ```
-
-
-

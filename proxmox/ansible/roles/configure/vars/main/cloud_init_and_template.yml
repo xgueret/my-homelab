@@ -1,16 +1,33 @@
-# Template for the Ubuntu 22.04 server cloud image
 templates:
-  - name: "ubuntu-2204-cloudinit-template"
+  - name: ubuntu-2204-cloudinit-template
     id: 9001
     memory: 2048
     cpu: 2
-    desc: "ubuntu 22.04 server cloudimg-amd64-disk-kvm"
+    desc: ubuntu 22.04 server cloudimg-amd64-disk-kvm
     cloud_init_image:
       name: ubuntu-22.04-server
       url: https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img
-      # get the url_checksum below with : curl -sL https://cloud-images.ubuntu.com/releases/22.04/release/SHA256SUMS | grep ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img | awk '{print $1}'
       url_checksum: sha256:3f9f7e6f0d530e1d852588a51b6f61cbbbbe8e13ee5e40781a1b50845d5600a4
       path: /tmp/ubuntu-22.04-server-cloudimg-amd64-disk-kvm.img
-
-ansible_key_pub: "{{ lookup('file', '~/.ssh/id_vm_proxmox_rsa.pub') }}"
+  - name: debian-12-cloudinit-template
+    id: 9002
+    memory: 2048
+    cpu: 2
+    desc: debian 12 bookworm cloudimg-amd64-disk-kvm
+    cloud_init_image:
+      name: debian-12-cloudimg
+      url: https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2
+      url_checksum: sha512:340cdafca262582e2ec013f2118a7daa9003436559a3e1cff637af0fc05d4c3755d43e15470bb40d7dd4430d355b44d098283fc4c7c6f640167667479eeeb0e0
+      path: /tmp/debian-12-genericcloud-amd64.qcow2
+  - name: opensuse-155-cloudinit-template
+    id: 9003
+    memory: 2048
+    cpu: 2
+    desc: OpenSUSE Leap 15.5 cloudimg-amd64-disk-kvm
+    cloud_init_image:
+      name: opensuse-15.5-cloudimg
+      url: https://download.opensuse.org/distribution/leap/15.6/appliances/openSUSE-Leap-15.6-Minimal-VM.x86_64-kvm-and-xen.qcow2
+      url_checksum: sha256:dc6b9ad6638155de6eba1824995b4a5c0bfbd7dfeffcbab47c2f73d569665058
+      path: /tmp/opensuse-15.6-minimal-vm-cloud.qcow2
+ansible_key_pub: '{{ lookup(''file'', ''~/.ssh/id_vm_proxmox_rsa.pub'') }}'
 root_passwd: '{{ lookup("env", "ssh_key_file") or "rootpasswd" }}'

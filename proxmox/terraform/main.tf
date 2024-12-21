@@ -10,26 +10,32 @@ resource "proxmox_vm_qemu" "vm" {
   os_type = "cloud-init"
   cores   = var.vm_cpu_cores
   sockets = 1
-  cpu     = "host"
+  cpu_type = "host"
   memory  = var.vm_memory
   scsihw  = "virtio-scsi-pci"
   bootdisk = "scsi0"
   # Utilisation de la base IP extraite de vm_gateway
   ipconfig0 = "ip=${join(".", slice(split(".", var.vm_gateway), 0, 3))}.${var.vm_ip_start + count.index}/${var.vm_netmask},gw=${var.vm_gateway}"
 
-
-  # scsi0 disk
-  disk {
-    slot    = "0"
-    size    = var.vm_disk0_size
-    type    = "scsi"
-    storage = var.vm_disk0_storage
+  # storage disks
+  disks {
+    scsi {
+      # scsi0 disk
+      scsi0 {
+        disk {
+          size    = var.vm_disk0_size
+          storage = var.vm_disk0_storage
+        }
+      }
+    }
   }
   
   # vmbr0 network
   network {
+    id     = 0
     model  = "virtio"
     bridge = "vmbr0"
+    tag    = 256
   }
 
   # Lifecycle pour ignorer les changements de réseau

@@ -27,7 +27,10 @@
         "VM.Config.Options",
         "VM.Migrate",
         "VM.Monitor",
-        "VM.PowerMgmt"
+        "VM.PowerMgmt",
+        "SDN.Use",
+        "SDN.Allocate",
+        "SDN.Audit"
       ]
     },
     {

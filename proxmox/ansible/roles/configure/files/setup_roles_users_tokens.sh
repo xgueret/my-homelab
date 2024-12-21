@@ -44,7 +44,8 @@ for i in $(seq 0 $((nb_token - 1))); do
 
   # Check if the role already exists
   if pveum role list -o json | jq -e --arg role "$ROLE" '.[] | select (.roleid == $role)' > /dev/null ; then
-    echo "Role $ROLE already exists, skipping creation."
+    echo "Role $ROLE already exists, skipping creation, but editing."
+    run_command "pveum role modify $ROLE -privs \"$PRIVILEGES_STR\""
   else
     # Add the role with specified privileges
     echo "Adding role $ROLE..."
