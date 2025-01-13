@@ -10,4 +10,4 @@
       tags:
         - manage
   vars_files:
-    - .secrets/config.yml
+    - secret_vars/config.yml

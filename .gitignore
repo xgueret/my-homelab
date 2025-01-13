@@ -31,6 +31,8 @@ pyvenv.cfg
 **/.terraform/
 **/.terraform/*
 
+.terraform.lock.hcl
+
 # Environment variable files
 .env
 
@@ -52,5 +54,4 @@ Thumbs.db
 clean_known_hosts.sh
 playground/
 
-# Ansible secrets files
-**/.secrets/**
+
