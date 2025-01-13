@@ -31,6 +31,8 @@ pyvenv.cfg
 **/.terraform/
 **/.terraform/*
 
+.terraform.lock.hcl
+
 # Environment variable files
 .env
 
